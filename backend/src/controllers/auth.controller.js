@@ -12,8 +12,8 @@ const signToken = (user) => {
 
 export const register = async (req, res) => {
   try {
-    const { nama, email, password, role, mataPelajaran, telepon } = req.body
-    if (!nama || !email || !password || !role) {
+    const { nama, email, password, role, mataPelajaran, telepon, namaAnak, kelas, guruId } = req.body
+    if (!nama || !email || !password || !role ) {
       return res.status(400).json({ message: 'nama, email, password, role wajib' })
     }
 
@@ -29,11 +29,50 @@ export const register = async (req, res) => {
     if (role === 'GURU') {
       await prisma.guru.create({ data: { userId: user.id, mataPelajaran: mataPelajaran || 'Umum' } })
     } else if (role === 'WALI_MURID') {
-      await prisma.waliMurid.create({ data: { userId: user.id, telepon: telepon || null } })
+      // Create Wali Murid profile
+      const wali = await prisma.waliMurid.create({ data: { userId: user.id, telepon: telepon || null } })
+
+      // Require child's name; optional kelas and guruId
+      if (!namaAnak) {
+        return res.status(400).json({ message: 'namaAnak wajib untuk WALI_MURID' })
+      }
+
+      // If guruId not provided, pick any existing guru as default if available
+      let assignedGuruId = guruId
+      if (!assignedGuruId) {
+        const anyGuru = await prisma.guru.findFirst()
+        if (!anyGuru) {
+          return res.status(400).json({ message: 'Belum ada guru terdaftar, hubungi admin' })
+        }
+        assignedGuruId = anyGuru.id
+      }
+
+      // Create Murid linked to this parent and guru
+      const murid = await prisma.murid.create({
+        data: {
+          nama: namaAnak,
+          kelas: kelas || 'A',
+          waliId: wali.id,
+          guruId: assignedGuruId
+        }
+      })
+
+      // Attach murid info for response
+      user.muridId = murid.id
+      user.muridNama = murid.nama
     }
 
     const token = signToken(user)
-    return res.status(201).json({ token, user: { id: user.id, nama: user.nama, email: user.email, role: user.role } })
+    return res.status(201).json({
+      token,
+      user: {
+        id: user.id,
+        nama: user.nama,
+        email: user.email,
+        role: user.role,
+        ...(user.muridId ? { muridId: user.muridId, muridNama: user.muridNama } : {})
+      }
+    })
   } catch (err) {
     console.error(err)
     return res.status(500).json({ message: 'Register gagal' })
@@ -58,4 +97,3 @@ export const login = async (req, res) => {
     return res.status(500).json({ message: 'Login gagal' })
   }
 }
-
