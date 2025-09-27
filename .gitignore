@@ -1,0 +1,97 @@
+node_modules
+# Keep environment variables out of version control
+.env
+############################
+# Root-level .gitignore
+# Covers Node.js backend with Prisma, env files, logs, editors, and common OS junk
+############################
+
+# Node
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# Env and secrets
+.env
+.env.*
+*.env
+*.local
+.DS_Store
+
+# Build output / caches
+dist/
+build/
+.cache/
+.parcel-cache/
+.next/
+.nuxt/
+.output/
+coverage/
+tmp/
+temp/
+.tmp/
+
+# Prisma
+prisma/*.db
+prisma/*.db-journal
+prisma/migrations/**/steps.json
+prisma/.env
+.prisma/
+node_modules/.prisma/
+
+# TypeScript
+*.tsbuildinfo
+
+# Logs
+logs/
+*.log
+*.log.*
+*.pid
+*.seed
+*.csv
+
+# IDEs / Editors
+.idea/
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# OS files
+Thumbs.db
+ehthumbs.db
+Icon?
+.Spotlight-V100
+.Trashes
+desktop.ini
+
+# Misc
+.DS_Store
+.envrc
+.tool-versions
+.eslintcache
+.prettier-cache
+.coverage*
+.nyc_output/
+
+# Backend subfolder specific
+backend/node_modules/
+backend/.env
+backend/.env.*
+backend/dist/
+backend/build/
+backend/coverage/
+backend/tmp/
+backend/.cache/
+/generated/prisma

@@ -1,0 +1,67 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id         Int        @id @default(autoincrement())
+  nama       String
+  email      String     @unique
+  password   String
+  role       Role
+  createdAt  DateTime   @default(now())
+  updatedAt  DateTime   @updatedAt
+  guru       Guru?
+  waliMurid  WaliMurid?
+}
+
+model Guru {
+  id            Int      @id @default(autoincrement())
+  mataPelajaran String
+  userId        Int      @unique
+  user          User     @relation(fields: [userId], references: [id])
+  murid         Murid[]
+  nilai         Nilai[]
+}
+
+model WaliMurid {
+  id       Int      @id @default(autoincrement())
+  telepon  String?
+  userId   Int      @unique
+  user     User     @relation(fields: [userId], references: [id])
+  murid    Murid[]
+}
+
+model Murid {
+  id      Int       @id @default(autoincrement())
+  nama    String
+  kelas   String
+  waliId  Int
+  guruId  Int
+  wali    WaliMurid @relation(fields: [waliId], references: [id])
+  guru    Guru      @relation(fields: [guruId], references: [id])
+  nilai   Nilai[]
+}
+
+model Nilai {
+  id            Int      @id @default(autoincrement())
+  mataPelajaran String
+  nilai         Int
+  keterangan    String?
+  tanggal       DateTime @default(now())
+  muridId       Int
+  guruId        Int
+  murid         Murid    @relation(fields: [muridId], references: [id])
+  guru          Guru     @relation(fields: [guruId], references: [id])
+}
+
+enum Role {
+  GURU
+  WALI_MURID
+  ADMIN
+}
+
